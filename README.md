@@ -6,9 +6,11 @@ WoW 3.3.5a Addon für Blood-Queen Lana'thel. Das Addon plant Vampirbisse, zeigt 
 
 - Prioritätsliste für Bissziele
 - Drag-and-drop zum Verschieben von Spielern in der Prioritätsliste
+- Scrollbar rechts und Mausrad zum Scrollen durch die Liste
 - Status pro Spieler: `PRIO`, `VAMPIRE`, `MC`, `DEAD`
 - Rollen pro Spieler: `DD`, `HEAL`, `TANK`, `UNKNOWN`
-- Heiler und Tanks werden in der Priorität nach unten sortiert
+- Keine Auto-Priorität nach Damage oder festen Klassenregeln
+- Heiler und Tanks werden in der Priorität nach unten geschoben
 - manueller Raid-Import über UI oder `/bq import`
 - Anzeige von Klasse, Rolle und Raidgruppe
 - Ansagen mit Zielgruppe, z.B. `Biss: SpielerA -> SpielerB G5`

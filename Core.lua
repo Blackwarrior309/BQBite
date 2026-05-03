@@ -237,39 +237,40 @@ function BQ:SetRole(name, role)
         return false
     end
     player.role = role
-    self:SortByRole()
+    if role == self.ROLE_HEAL or role == self.ROLE_TANK then
+        self:SinkHealersAndTanks()
+    end
     self:RefreshRaidMarkers()
     self:Refresh()
     return true
 end
 
-function BQ:GetRoleRank(role)
-    role = string.upper(tostring(role or self.ROLE_UNKNOWN))
-    if role == self.ROLE_DD then
-        return 1
-    elseif role == self.ROLE_HEAL then
-        return 3
-    elseif role == self.ROLE_TANK then
-        return 4
-    end
-    return 2
-end
-
-function BQ:SortByRole()
+function BQ:SinkHealersAndTanks()
     local players = self:GetPlayers()
-    for index, player in ipairs(players) do
-        player.sortIndex = index
-    end
-    table.sort(players, function(a, b)
-        local ar = self:GetRoleRank(a.role)
-        local br = self:GetRoleRank(b.role)
-        if ar == br then
-            return (a.sortIndex or 0) < (b.sortIndex or 0)
-        end
-        return ar < br
-    end)
+    local front = {}
+    local healers = {}
+    local tanks = {}
     for _, player in ipairs(players) do
-        player.sortIndex = nil
+        self:EnsurePlayerDefaults(player)
+        if player.role == self.ROLE_TANK then
+            table.insert(tanks, player)
+        elseif player.role == self.ROLE_HEAL then
+            table.insert(healers, player)
+        else
+            table.insert(front, player)
+        end
+    end
+    for i = #players, 1, -1 do
+        table.remove(players, i)
+    end
+    for _, player in ipairs(front) do
+        table.insert(players, player)
+    end
+    for _, player in ipairs(healers) do
+        table.insert(players, player)
+    end
+    for _, player in ipairs(tanks) do
+        table.insert(players, player)
     end
 end
 
@@ -481,7 +482,7 @@ function BQ:ImportRaidMembers()
         end
     end
 
-    self:SortByRole()
+    self:SinkHealersAndTanks()
     self:RefreshRaidMarkers()
     self:Refresh()
     self:Print("Raid-Import: " .. count .. " Spieler übernommen.")

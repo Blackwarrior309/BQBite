@@ -9,6 +9,8 @@ local selectedName = nil
 local pageStart = 1
 local minimapButton = nil
 local debugFrame = nil
+local scrollBar = nil
+local updatingScrollBar = false
 local dragPlayerName = nil
 local dragSourceIndex = nil
 
@@ -54,16 +56,46 @@ end
 
 local function ClampPage()
     local count = #(BQ:GetPlayers())
-    local maxStart = count - ROW_COUNT + 1
-    if maxStart < 1 then
-        maxStart = 1
-    end
+    local maxStart = math.max(1, count - ROW_COUNT + 1)
     if pageStart > maxStart then
         pageStart = maxStart
     end
     if pageStart < 1 then
         pageStart = 1
     end
+end
+
+local function GetMaxPageStart()
+    local count = #(BQ:GetPlayers())
+    return math.max(1, count - ROW_COUNT + 1)
+end
+
+local function SetPageStart(value)
+    local maxStart = GetMaxPageStart()
+    value = tonumber(value) or 1
+    if value < 1 then
+        value = 1
+    elseif value > maxStart then
+        value = maxStart
+    end
+    pageStart = value
+    UI:Refresh()
+end
+
+local function UpdateScrollBar()
+    if not scrollBar then
+        return
+    end
+    local maxStart = GetMaxPageStart()
+    if maxStart <= 1 then
+        scrollBar:Hide()
+        return
+    end
+    updatingScrollBar = true
+    scrollBar:Show()
+    scrollBar:SetMinMaxValues(1, maxStart)
+    scrollBar:SetValue(pageStart)
+    updatingScrollBar = false
 end
 
 local function StatusText(status)
@@ -119,6 +151,10 @@ local function GetRowUnderCursor()
         end
     end
     return nil
+end
+
+local function ScrollBy(delta)
+    SetPageStart(pageStart + delta)
 end
 
 local function UpdateMinimapButtonPosition()
@@ -240,9 +276,17 @@ function UI:Create()
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
     frame:EnableMouse(true)
+    frame:EnableMouseWheel(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", function(self) self:StartMoving() end)
     frame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+    frame:SetScript("OnMouseWheel", function(_, delta)
+        if delta > 0 then
+            ScrollBy(-1)
+        elseif delta < 0 then
+            ScrollBy(1)
+        end
+    end)
     frame:SetFrameStrata("DIALOG")
     frame:Hide()
     SetBackdrop(frame)
@@ -315,6 +359,25 @@ function UI:Create()
     local headerNext = CreateLabel(frame, "Ziel")
     headerNext:SetPoint("TOPLEFT", frame, "TOPLEFT", 482, -88)
 
+    local bar = CreateFrame("Slider", "BQBissScrollBar", frame, "UIPanelScrollBarTemplate")
+    bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 588, -108)
+    bar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 140)
+    bar:SetWidth(16)
+    bar:SetMinMaxValues(1, 1)
+    bar:SetValueStep(1)
+    bar:SetValue(1)
+    bar:SetScript("OnValueChanged", function(self, value)
+        if updatingScrollBar then
+            return
+        end
+        value = math.floor((tonumber(value) or 1) + 0.5)
+        if value ~= pageStart then
+            pageStart = value
+            UI:Refresh()
+        end
+    end)
+    scrollBar = bar
+
     self.rows = {}
     for i = 1, ROW_COUNT do
         local row = CreateFrame("Button", nil, frame)
@@ -323,6 +386,7 @@ function UI:Create()
         row:SetPoint("TOPLEFT", frame, "TOPLEFT", 30, -108 - ((i - 1) * 22))
         row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
         row:RegisterForDrag("LeftButton")
+        row:EnableMouseWheel(true)
 
         row.indexText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         row.indexText:SetPoint("LEFT", row, "LEFT", 0, 0)
@@ -381,6 +445,14 @@ function UI:Create()
             end
             dragPlayerName = nil
             dragSourceIndex = nil
+        end)
+
+        row:SetScript("OnMouseWheel", function(_, delta)
+            if delta > 0 then
+                ScrollBy(-1)
+            elseif delta < 0 then
+                ScrollBy(1)
+            end
         end)
 
         self.rows[i] = row
@@ -624,6 +696,7 @@ function UI:Refresh()
     if self.channel then
         UIDropDownMenu_SetSelectedValue(self.channel, BQ:GetAnnounceChannel())
     end
+    UpdateScrollBar()
     self:RefreshDebug()
     if not self.frame.updateAttached then
         self.frame.updateAttached = true
