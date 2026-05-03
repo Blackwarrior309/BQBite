@@ -810,6 +810,9 @@ function BQ:CompleteDebugBite(name)
         end
     end
     self:DebugLog("Alle ausstehenden Bisse geklappt: " .. table.concat(messages, " / ") .. ".")
+    if self.db and self.db.started and self.db.auto then
+        self:AnnounceRound()
+    end
     return lastTarget
 end
 
