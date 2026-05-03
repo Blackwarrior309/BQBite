@@ -14,6 +14,7 @@ WoW 3.3.5a Addon für Blood-Queen Lana'thel. Das Addon plant Vampirbisse, zeigt 
 - manueller Raid-Import über UI oder `/bq import`
 - Anzeige von Klasse, Rolle und Raidgruppe
 - Ansagen mit Zielgruppe, z.B. `Biss: SpielerA -> SpielerB G5`
+- Rundenansagen mit Marker-Namen, z.B. `Stern: SpielerA -> SpielerB G5`
 - automatische Raidmarker für nächste Bissziele
 - Erkennung von Essence, Frenzied Bloodthirst, Mind Control, Tod und Vampiric Bite
 - Falschbiss-Ansage, z.B. `SpielerX G4 wurde gebissen, SpielerY G5 noch frei`

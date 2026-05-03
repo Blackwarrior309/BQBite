@@ -31,6 +31,7 @@ BQBiss ist ein WoW-3.3.5-Addon für Blood-Queen Lana'thel. Es verwaltet eine Pri
   - `DEAD` und `MC` werden nicht als Ziel oder Beißer genutzt, weil sie nicht `PRIO`/`VAMPIRE` sind.
 - Ansageformat:
   - `Biss: SpielerA -> SpielerB G5`
+  - Rundenansagen mit Marker-Namen wie `Stern: SpielerA -> SpielerB G5`
   - mehrere Bisse werden einzeln untereinander gesendet.
 - Falschbiss-Ansage:
   - `SpielerX G4 wurde gebissen, SpielerY G5 noch frei`

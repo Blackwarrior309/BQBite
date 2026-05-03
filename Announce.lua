@@ -80,8 +80,6 @@ function BQ:AnnounceLines(messages)
 end
 
 function BQ:AnnounceNext()
-    local messages = self:GetNextMessages()
-    self:AnnounceLines(messages)
-    return table.concat(messages, "\n")
+    return self:AnnounceRound(true)
 end
 

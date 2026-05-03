@@ -25,6 +25,17 @@ BQ.ROLE_COLORS = {
     UNKNOWN = "|cffbbbbbb",
 }
 
+BQ.MARKER_NAMES = {
+    [1] = "Stern",
+    [2] = "Kreis",
+    [3] = "Raute",
+    [4] = "Dreieck",
+    [5] = "Mond",
+    [6] = "Quadrat",
+    [7] = "Kreuz",
+    [8] = "Totenkopf",
+}
+
 BQ.SPELLS = {
     ESSENCE = {
         [70867] = true, [70879] = true, [71473] = true, [71525] = true,
@@ -294,8 +305,7 @@ end
 function BQ:StartAndAnnounce()
     self:Start()
     self:Print("Planung gestartet.")
-    self:RefreshRaidMarkers()
-    return self:AnnounceNext()
+    return self:AnnounceRound(true)
 end
 
 function BQ:PreparePullTest()
@@ -372,6 +382,55 @@ function BQ:FormatPlayerForAnnounce(name, includeGroup)
     return text
 end
 
+function BQ:GetMarkerName(index)
+    return self.MARKER_NAMES[index] or tostring(index)
+end
+
+function BQ:GetRoundSignature(assignments)
+    if not assignments or #assignments == 0 then
+        return "none"
+    end
+    local parts = {}
+    for _, assignment in ipairs(assignments) do
+        table.insert(parts, assignment.biter .. ">" .. assignment.target)
+    end
+    return table.concat(parts, "|")
+end
+
+function BQ:FormatRoundMessage(index, assignment)
+    local marker = self:GetMarkerName(index)
+    local biter = self:FormatPlayerForAnnounce(assignment.biter, false)
+    local target = self:FormatPlayerForAnnounce(assignment.target, true)
+    return marker .. ": " .. biter .. " -> " .. target
+end
+
+function BQ:GetRoundMessages(assignments)
+    assignments = assignments or self:CalculateAssignments()
+    local messages = {}
+    if not assignments or #assignments == 0 then
+        table.insert(messages, "Biss: keine gültige Zuordnung")
+        return messages
+    end
+    for index, assignment in ipairs(assignments) do
+        table.insert(messages, self:FormatRoundMessage(index, assignment))
+    end
+    return messages
+end
+
+function BQ:AnnounceRound(force)
+    local assignments = self:CalculateAssignments()
+    local signature = self:GetRoundSignature(assignments)
+    if not force and self.roundAnnouncementSignature == signature then
+        self:RefreshRaidMarkers()
+        return table.concat(self:GetRoundMessages(assignments), "\n")
+    end
+    self.roundAnnouncementSignature = signature
+    self:RefreshRaidMarkers()
+    local messages = self:GetRoundMessages(assignments)
+    self:AnnounceLines(messages)
+    return table.concat(messages, "\n")
+end
+
 function BQ:GetAssignmentForBiter(name)
     local player = self:FindPlayer(name)
     if not player or player.status ~= self.STATUS_VAMPIRE then
@@ -397,27 +456,15 @@ function BQ:GetMessageForBiter(name)
 end
 
 function BQ:FormatAssignments(assignments)
-    if not assignments or #assignments == 0 then
+    local messages = self:GetRoundMessages(assignments)
+    if not messages or #messages == 0 then
         return "Biss: keine gültige Zuordnung"
     end
-    local parts = {}
-    for _, assignment in ipairs(assignments) do
-        table.insert(parts, self:FormatPlayerForAnnounce(assignment.biter, false) .. " -> " .. self:FormatPlayerForAnnounce(assignment.target, true))
-    end
-    return "Biss: " .. table.concat(parts, " / ")
+    return table.concat(messages, " / ")
 end
 
 function BQ:GetNextMessages()
-    local assignments = self:CalculateAssignments()
-    local messages = {}
-    if not assignments or #assignments == 0 then
-        table.insert(messages, "Biss: keine gültige Zuordnung")
-        return messages
-    end
-    for _, assignment in ipairs(assignments) do
-        table.insert(messages, "Biss: " .. self:FormatPlayerForAnnounce(assignment.biter, false) .. " -> " .. self:FormatPlayerForAnnounce(assignment.target, true))
-    end
-    return messages
+    return self:GetRoundMessages(self:CalculateAssignments())
 end
 
 function BQ:GetNextMessage()
@@ -786,6 +833,9 @@ function BQ:HandleActualBite(sourceName, destName)
     self:SetDebugBiteTimer(sourceName, 60)
     self:SetDebugBiteTimer(destName, 60)
     self:DebugLog("Biss erkannt: " .. sourceName .. " -> " .. destName .. ". Beide Timer 60s.")
+    if self.db and self.db.started and self.db.auto then
+        self:AnnounceRound()
+    end
 end
 
 function BQ:CleanPlayerName(name)
@@ -809,6 +859,9 @@ function BQ:HandleEssence(name)
     self:SetStatus(name, self.STATUS_VAMPIRE)
     self:SetDebugBiteTimer(name, 60)
     self:DebugLog("Essenz erkannt: " .. name .. " ist VAMPIRE.")
+    if self.db and self.db.started and self.db.auto then
+        self:AnnounceRound()
+    end
 end
 
 function BQ:HandleBloodthirst(name)
