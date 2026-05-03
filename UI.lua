@@ -359,13 +359,22 @@ function UI:Create()
     local headerNext = CreateLabel(frame, "Ziel")
     headerNext:SetPoint("TOPLEFT", frame, "TOPLEFT", 482, -88)
 
-    local bar = CreateFrame("Slider", "BQBissScrollBar", frame, "UIPanelScrollBarTemplate")
+    local bar = CreateFrame("Slider", "BQBissScrollBar", frame)
     bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 588, -108)
     bar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 140)
     bar:SetWidth(16)
+    bar:SetOrientation("VERTICAL")
     bar:SetMinMaxValues(1, 1)
     bar:SetValueStep(1)
     bar:SetValue(1)
+    bar:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
+    if bar:GetThumbTexture() then
+        bar:GetThumbTexture():SetWidth(16)
+        bar:GetThumbTexture():SetHeight(16)
+    end
+    bar.bg = bar:CreateTexture(nil, "BACKGROUND")
+    bar.bg:SetAllPoints(bar)
+    bar.bg:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar")
     bar:SetScript("OnValueChanged", function(self, value)
         if updatingScrollBar then
             return
