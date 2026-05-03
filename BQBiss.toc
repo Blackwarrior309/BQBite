@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: BQBiss
+## Notes: Blood-Queen Lana'thel bite planner
+## Author: Codex
+## Version: 1.0.0
+## SavedVariables: BQBissDB
+
+Core.lua
+Announce.lua
+Auto.lua
+UI.lua
+Slash.lua
