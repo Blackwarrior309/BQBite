@@ -3,6 +3,7 @@ local BQ = BQBiss
 
 local function Help()
     BQ:Print("/bq - UI öffnen/schließen")
+    BQ:Print("/bq pull - Pull-Test vorbereiten, nur lokal und Auto AN")
     BQ:Print("/bq start - Planung starten und ansagen")
     BQ:Print("/bq reset - Status zurücksetzen")
     BQ:Print("/bq next - nächste Ansage")
@@ -26,6 +27,8 @@ SlashCmdList["BQBISS"] = function(msg)
         if BQ.UI and BQ.UI.Toggle then
             BQ.UI:Toggle()
         end
+    elseif command == "pull" then
+        BQ:PreparePullTest()
     elseif command == "start" then
         BQ:StartAndAnnounce()
     elseif command == "reset" then

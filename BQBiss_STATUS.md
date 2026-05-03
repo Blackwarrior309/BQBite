@@ -35,7 +35,8 @@ BQBiss ist ein WoW-3.3.5-Addon für Blood-Queen Lana'thel. Es verwaltet eine Pri
 - Ansagekanäle: `LOCAL`, `RAID`, `PARTY`, `SAY`.
 - Lokaler Testmodus ist standardmäßig aktiv und blockiert Chatansagen in Raid/Party/Say.
 - Chat-Ausgabe wird sanitized, damit WoW keine Invalid-Escape-Fehler durch `|` bekommt.
-- `Start+Ansage` startet Planung, aktiviert Auto und sagt die nächste Zuordnung an.
+- `Pull-Test` bereitet den HC-Test vor: nur lokal, Auto AN, Planung gestartet, keine Chatansage.
+- `Start+Ansage` ist per Slash weiterhin verfügbar und startet Planung mit Ansage.
 - `Nächste Ansage` wiederholt die aktuelle Berechnung.
 - `Raid Import` importiert aktuelle Raidmitglieder.
 - `Marker AN/AUS` schaltet automatische Raidmarker für nächste Bissziele.
@@ -82,6 +83,7 @@ Spell-IDs:
 ## Slash Commands
 
 - `/bq` UI öffnen/schließen
+- `/bq pull` Pull-Test vorbereiten, nur lokal und Auto AN
 - `/bq start` starten und ansagen
 - `/bq reset` Status auf `PRIO` zurücksetzen
 - `/bq next` nächste Ansage

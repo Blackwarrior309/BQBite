@@ -29,6 +29,7 @@ Danach im Spiel `/reload` ausführen oder den Client neu starten.
 ## Bedienung
 
 - `/bq` öffnet oder schließt das Hauptfenster
+- `/bq pull` bereitet den Pull-Test vor: nur lokal, Auto AN, keine Raidchat-Ansage
 - `/bq start` startet Planung und Auto-Erkennung
 - `/bq reset` setzt Status zurück
 - `/bq next` sagt die nächste Bissplanung an
@@ -41,7 +42,7 @@ Danach im Spiel `/reload` ausführen oder den Client neu starten.
 
 ## Hinweise
 
-Standardmäßig ist der lokale Testmodus aktiv. Dadurch werden alle Ansagen nur dir lokal im Chatfenster angezeigt und nicht in Raid, Party oder Say gesendet. Für echte Chatansagen zuerst `/bq local off` verwenden und dann den gewünschten Kanal setzen.
+Standardmäßig ist der lokale Testmodus aktiv. Dadurch werden alle Ansagen nur dir lokal im Chatfenster angezeigt und nicht in Raid, Party oder Say gesendet. Für den Raidtest vor dem Pull `Pull-Test` drücken oder `/bq pull` nutzen. Die erste echte Essenz setzt den ersten Vampir und startet seinen 60s-Timer.
 
 Für Raidmarker werden im Raid passende Rechte benötigt. Wenn keine Rechte vorhanden sind, läuft das Addon weiter, setzt aber keine Marker.
 

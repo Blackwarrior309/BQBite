@@ -434,10 +434,10 @@ function UI:Create()
         if selectedName then BQ:SetRole(selectedName, BQ.ROLE_UNKNOWN) end
     end)
 
-    local start = CreateButton(frame, "Start+Ansage", 100, 24)
+    local start = CreateButton(frame, "Pull-Test", 100, 24)
     start:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 30, 24)
     start:SetScript("OnClick", function()
-        BQ:StartAndAnnounce()
+        BQ:PreparePullTest()
     end)
 
     local reset = CreateButton(frame, "Reset", 76, 24)

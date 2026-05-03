@@ -275,6 +275,22 @@ function BQ:StartAndAnnounce()
     return self:AnnounceNext()
 end
 
+function BQ:PreparePullTest()
+    self:InitDB()
+    if self.SetLocalOnly then
+        self:SetLocalOnly(true)
+    else
+        self.db.localOnly = true
+        self.db.announceChannel = "LOCAL"
+    end
+    self.db.started = true
+    self.db.auto = true
+    self:RefreshRaidMarkers()
+    self:Refresh()
+    self:Print("Pull-Test bereit: nur lokal, Auto AN. Erste Essenz startet den Timer.")
+    return true
+end
+
 function BQ:SetAuto(enabled)
     self.db.auto = enabled and true or false
     self:Refresh()
@@ -768,6 +784,7 @@ function BQ:HandleEssence(name)
         return
     end
     self:SetStatus(name, self.STATUS_VAMPIRE)
+    self:SetDebugBiteTimer(name, 60)
     self:DebugLog("Essenz erkannt: " .. name .. " ist VAMPIRE.")
 end
 
