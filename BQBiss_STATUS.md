@@ -18,6 +18,7 @@ BQBiss ist ein WoW-3.3.5-Addon für Blood-Queen Lana'thel. Es verwaltet eine Pri
 ## Implementiert
 
 - Spieler manuell hinzufügen, entfernen und sortieren.
+- Spieler per Drag-and-drop in der Prioritätsliste verschieben.
 - Raidmitglieder manuell importieren über UI oder `/bq import`.
 - Raid-Import liest Name, Klasse und Gruppe; nicht mehr im Raid vorhandene Spieler werden entfernt.
 - Status manuell setzen: `PRIO`, `VAMPIRE`, `DEAD`, `MC`.

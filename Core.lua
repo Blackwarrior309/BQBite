@@ -179,6 +179,28 @@ function BQ:MovePlayer(name, delta)
     return true
 end
 
+function BQ:MovePlayerToIndex(name, targetIndex)
+    local players = self:GetPlayers()
+    local _, index = self:FindPlayer(name)
+    targetIndex = tonumber(targetIndex)
+    if not index or not targetIndex then
+        return false
+    end
+    if targetIndex < 1 then
+        targetIndex = 1
+    elseif targetIndex > #players then
+        targetIndex = #players
+    end
+    if index == targetIndex then
+        return false
+    end
+    local player = table.remove(players, index)
+    table.insert(players, targetIndex, player)
+    self:RefreshRaidMarkers()
+    self:Refresh()
+    return true
+end
+
 function BQ:SetStatus(name, status)
     if status ~= self.STATUS_PRIO and status ~= self.STATUS_VAMPIRE and status ~= self.STATUS_MC and status ~= self.STATUS_DEAD then
         return false

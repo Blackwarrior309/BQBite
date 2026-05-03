@@ -9,6 +9,8 @@ local selectedName = nil
 local pageStart = 1
 local minimapButton = nil
 local debugFrame = nil
+local dragPlayerName = nil
+local dragSourceIndex = nil
 
 local function SetBackdrop(frame)
     frame:SetBackdrop({
@@ -95,6 +97,28 @@ local function GetDebugName()
         end
     end
     return selectedName
+end
+
+local function GetRowUnderCursor()
+    if not UI.rows then
+        return nil
+    end
+    local scale = UIParent and UIParent:GetEffectiveScale() or 1
+    local cursorX, cursorY = GetCursorPosition()
+    cursorX = cursorX / scale
+    cursorY = cursorY / scale
+    for _, row in ipairs(UI.rows) do
+        if row:IsShown() and row.playerIndex then
+            local left = row:GetLeft()
+            local right = row:GetRight()
+            local top = row:GetTop()
+            local bottom = row:GetBottom()
+            if left and right and top and bottom and cursorX >= left and cursorX <= right and cursorY <= top and cursorY >= bottom then
+                return row
+            end
+        end
+    end
+    return nil
 end
 
 local function UpdateMinimapButtonPosition()
@@ -298,6 +322,7 @@ function UI:Create()
         row:SetHeight(20)
         row:SetPoint("TOPLEFT", frame, "TOPLEFT", 30, -108 - ((i - 1) * 22))
         row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+        row:RegisterForDrag("LeftButton")
 
         row.indexText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         row.indexText:SetPoint("LEFT", row, "LEFT", 0, 0)
@@ -333,6 +358,29 @@ function UI:Create()
             if self.playerName then
                 SelectPlayer(self.playerName)
             end
+        end)
+
+        row:SetScript("OnDragStart", function(self)
+            if self.playerName and self.playerIndex then
+                dragPlayerName = self.playerName
+                dragSourceIndex = self.playerIndex
+                SelectPlayer(self.playerName)
+            end
+        end)
+
+        row:SetScript("OnDragStop", function()
+            if dragPlayerName then
+                local targetRow = GetRowUnderCursor()
+                if targetRow and targetRow.playerIndex then
+                    if BQ:MovePlayerToIndex(dragPlayerName, targetRow.playerIndex) then
+                        SelectPlayer(dragPlayerName)
+                    end
+                elseif dragSourceIndex then
+                    UI:Refresh()
+                end
+            end
+            dragPlayerName = nil
+            dragSourceIndex = nil
         end)
 
         self.rows[i] = row
@@ -519,8 +567,10 @@ function UI:Refresh()
         local player = players[playerIndex]
         if player then
             row.playerName = player.name
+            row.playerIndex = playerIndex
             row.indexText:SetText(playerIndex .. ".")
-            row.nameText:SetText((player.name == selectedName and "|cff33ff99" or "") .. player.name .. (player.name == selectedName and "|r" or ""))
+            local prefix = player.name == dragPlayerName and "|cffffff00" or (player.name == selectedName and "|cff33ff99" or "")
+            row.nameText:SetText(prefix .. player.name .. (prefix ~= "" and "|r" or ""))
             row.statusText:SetText(StatusText(player.status))
             row.metaText:SetText(MetaText(player))
             row.timerText:SetText(BQ:GetBiteTimerLabel(player.name))
@@ -535,6 +585,7 @@ function UI:Refresh()
             end
         else
             row.playerName = nil
+            row.playerIndex = nil
             row.indexText:SetText("")
             row.nameText:SetText("")
             row.statusText:SetText("")
