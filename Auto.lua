@@ -7,8 +7,9 @@ local lastBite = {}
 local function ReadCombatLog(...)
     local timestamp, subEvent = ...
     local sourceName, destName, spellId
+    local argCount = select("#", ...)
 
-    if type(select(12, ...)) == "number" then
+    if argCount >= 12 and type((select(12, ...))) == "number" then
         sourceName = select(5, ...)
         destName = select(9, ...)
         spellId = select(12, ...)
