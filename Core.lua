@@ -133,6 +133,17 @@ function BQ:EnsurePlayerDefaults(player)
     player.role = player.role or self.ROLE_UNKNOWN
 end
 
+function BQ:IsValidStatus(status)
+    return status == self.STATUS_PRIO
+        or status == self.STATUS_VAMPIRE
+        or status == self.STATUS_MC
+        or status == self.STATUS_DEAD
+end
+
+function BQ:IsBlockingStatus(status)
+    return status == self.STATUS_MC or status == self.STATUS_DEAD
+end
+
 function BQ:FindPlayer(name)
     local normalized = NormalizeName(name)
     if not normalized then
@@ -213,7 +224,7 @@ function BQ:MovePlayerToIndex(name, targetIndex)
 end
 
 function BQ:SetStatus(name, status)
-    if status ~= self.STATUS_PRIO and status ~= self.STATUS_VAMPIRE and status ~= self.STATUS_MC and status ~= self.STATUS_DEAD then
+    if not self:IsValidStatus(status) then
         return false
     end
     local player = self:FindPlayer(name)
@@ -224,13 +235,60 @@ function BQ:SetStatus(name, status)
         return false
     end
     self:EnsurePlayerDefaults(player)
+    local previousStatus = player.status
+    if self:IsBlockingStatus(status) and previousStatus ~= status and not self:IsBlockingStatus(previousStatus) then
+        player.previousStatus = previousStatus
+        local _, expires = self:GetBiteTimerInfo(player.name)
+        player.previousTimerExpires = expires
+    elseif not self:IsBlockingStatus(status) then
+        player.previousStatus = nil
+        player.previousTimerRemaining = nil
+        player.previousTimerExpires = nil
+    end
     player.status = status
-    if status == self.STATUS_MC or status == self.STATUS_DEAD or status == self.STATUS_PRIO then
+    if self:IsBlockingStatus(status) or status == self.STATUS_PRIO then
         self:ClearDebugBiteTimer(player.name)
     end
     self:RefreshRaidMarkers()
     self:Refresh()
     return true
+end
+
+function BQ:GetRestoreStatus(player)
+    if player and self:IsValidStatus(player.previousStatus) and not self:IsBlockingStatus(player.previousStatus) then
+        return player.previousStatus
+    end
+    return self.STATUS_PRIO
+end
+
+function BQ:RestoreStatus(name)
+    name = self:CleanPlayerName(name)
+    if not name then
+        return false
+    end
+    local player = self:FindPlayer(name)
+    if not player or not self:IsBlockingStatus(player.status) then
+        return false
+    end
+    local restoredStatus = self:GetRestoreStatus(player)
+    local timerExpires = player.previousTimerExpires
+    player.status = restoredStatus
+    player.previousStatus = nil
+    player.previousTimerRemaining = nil
+    player.previousTimerExpires = nil
+    local remaining
+    if timerExpires then
+        remaining = math.ceil(timerExpires - (GetTime and GetTime() or 0))
+    end
+    if restoredStatus == self.STATUS_VAMPIRE and remaining and remaining > 0 then
+        self:SetDebugBiteTimer(player.name, remaining)
+    else
+        self:ClearDebugBiteTimer(player.name)
+    end
+    self:RefreshRaidMarkers()
+    self:Refresh()
+    self:DebugLog("Wiederhergestellt: " .. player.name .. " -> " .. restoredStatus .. ".")
+    return true, restoredStatus, player.name
 end
 
 function BQ:IsValidRole(role)
@@ -289,6 +347,9 @@ function BQ:Reset()
     self:ClearRaidMarkers()
     for _, player in ipairs(self:GetPlayers()) do
         player.status = self.STATUS_PRIO
+        player.previousStatus = nil
+        player.previousTimerRemaining = nil
+        player.previousTimerExpires = nil
     end
     self.db.started = false
     self.debugTimers = nil
@@ -887,6 +948,21 @@ function BQ:HandleMindControl(name)
     self:DebugLog("Übernahme erkannt: " .. name .. " ist MC.")
 end
 
+function BQ:HandleMindControlRemoved(name)
+    name = self:CleanPlayerName(name)
+    if not name then
+        return
+    end
+    local player = self:FindPlayer(name)
+    if not player or player.status ~= self.STATUS_MC then
+        return
+    end
+    local restored, status, playerName = self:RestoreStatus(name)
+    if restored then
+        self:DebugLog("MC vorbei: " .. playerName .. " ist wieder " .. status .. ".")
+    end
+end
+
 function BQ:HandleDeath(name)
     name = self:CleanPlayerName(name)
     if not name or not self:FindPlayer(name) then
@@ -894,6 +970,17 @@ function BQ:HandleDeath(name)
     end
     self:SetStatus(name, self.STATUS_DEAD)
     self:DebugLog("Tod erkannt: " .. name .. " ist DEAD.")
+end
+
+function BQ:HandleResurrect(name)
+    name = self:CleanPlayerName(name)
+    if not name then
+        return
+    end
+    local player = self:FindPlayer(name)
+    if player and player.status == self.STATUS_DEAD then
+        self:RestoreStatus(name)
+    end
 end
 
 function BQ:SimulateEssence(name)
@@ -912,4 +999,3 @@ eventFrame:SetScript("OnEvent", function(_, event, addon)
         BQ:InitDB()
     end
 end)
-

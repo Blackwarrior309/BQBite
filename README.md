@@ -17,6 +17,7 @@ WoW 3.3.5a Addon für Blood-Queen Lana'thel. Das Addon plant Vampirbisse, zeigt 
 - Rundenansagen mit Marker-Namen, z.B. `Stern: SpielerA -> SpielerB G5`
 - automatische Raidmarker für nächste Bissziele
 - Erkennung von Essence, Frenzied Bloodthirst, Mind Control, Tod und Vampiric Bite
+- Status-Rueckkehr nach `DEAD`/`MC` stellt den vorherigen Status wieder her
 - Falschbiss-Ansage, z.B. `SpielerX G4 wurde gebissen, SpielerY G5 noch frei`
 - simulierte und echte Biss-Timer in Debugfenster und Hauptliste
 
@@ -37,6 +38,7 @@ Danach im Spiel `/reload` ausführen oder den Client neu starten.
 - `/bq start` startet Planung und Auto-Erkennung
 - `/bq reset` setzt Status zurück
 - `/bq next` sagt die nächste Bissplanung an
+- `/bq restore NAME` stellt den gespeicherten Status nach `DEAD` oder `MC` wieder her
 - `/bq import` importiert aktuelle Raidmitglieder
 - `/bq role NAME dd|heal|tank|unknown` setzt eine Rolle
 - `/bq markers on|off` schaltet Raidmarker
@@ -47,6 +49,10 @@ Danach im Spiel `/reload` ausführen oder den Client neu starten.
 ## Hinweise
 
 Standardmäßig ist der lokale Testmodus aktiv. Dadurch werden alle Ansagen nur dir lokal im Chatfenster angezeigt und nicht in Raid, Party oder Say gesendet. Für den Raidtest vor dem Pull `Pull-Test` drücken oder `/bq pull` nutzen. Die erste echte Essenz setzt den ersten Vampir und startet seinen 60s-Timer.
+
+Der Raid-Import bleibt bewusst manuell. Nutze `/bq import` oder den UI-Button, wenn sich der Raid geaendert hat.
+
+Wenn ein Spieler durch Tod oder Mind Control blockiert wird, merkt sich BQBiss seinen vorherigen Status. Bei Wiederbelebung, Ende von Mind Control oder `/bq restore NAME` wird daraus wieder `PRIO` oder `VAMPIRE`.
 
 Für Raidmarker werden im Raid passende Rechte benötigt. Wenn keine Rechte vorhanden sind, läuft das Addon weiter, setzt aber keine Marker.
 

@@ -8,6 +8,7 @@ local function Help()
     BQ:Print("/bq reset - Status zurücksetzen")
     BQ:Print("/bq next - nächste Ansage")
     BQ:Print("/bq wrong NAME - falschen Biss als Vampir markieren")
+    BQ:Print("/bq restore NAME - Status nach DEAD/MC wiederherstellen")
     BQ:Print("/bq import - Raidmitglieder importieren")
     BQ:Print("/bq role NAME dd|heal|tank|unknown - Rolle setzen")
     BQ:Print("/bq markers on|off - Raidmarker schalten")
@@ -42,6 +43,17 @@ SlashCmdList["BQBISS"] = function(msg)
             BQ:Print(BQ:GetNextMessage())
         else
             BQ:Print("Syntax: /bq wrong NAME")
+        end
+    elseif command == "restore" then
+        if rest and rest ~= "" then
+            local restored, status, name = BQ:RestoreStatus(rest)
+            if restored then
+                BQ:Print("Status wiederhergestellt: " .. name .. " -> " .. status)
+            else
+                BQ:Print("Keine DEAD/MC-Wiederherstellung fuer: " .. tostring(rest))
+            end
+        else
+            BQ:Print("Syntax: /bq restore NAME")
         end
     elseif command == "import" then
         BQ:ImportRaidMembers()
@@ -94,4 +106,3 @@ SlashCmdList["BQBISS"] = function(msg)
         Help()
     end
 end
-

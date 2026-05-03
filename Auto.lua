@@ -24,11 +24,31 @@ end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:RegisterEvent("UNIT_HEALTH")
 frame:SetScript("OnEvent", function(_, event, ...)
+    BQ:InitDB()
+
+    if event == "UNIT_HEALTH" then
+        local unit = ...
+        if not unit then return end
+        if unit ~= "player" and not string.match(unit, "^raid%d+$") and not string.match(unit, "^party%d+$") then
+            return
+        end
+        if UnitIsDeadOrGhost and UnitIsDeadOrGhost(unit) then
+            return
+        end
+        local name = UnitName and UnitName(unit)
+        if not name then return end
+        local player = BQ:FindPlayer(BQ:CleanPlayerName(name))
+        if player and player.status == BQ.STATUS_DEAD then
+            BQ:HandleResurrect(name)
+        end
+        return
+    end
+
     if event ~= "COMBAT_LOG_EVENT_UNFILTERED" then
         return
     end
-    BQ:InitDB()
     if not BQ.db.started or not BQ.db.auto then
         return
     end
@@ -46,6 +66,10 @@ frame:SetScript("OnEvent", function(_, event, ...)
             end
         elseif BQ.SPELLS.MIND_CONTROL[spellId] then
             BQ:HandleMindControl(destName)
+        end
+    elseif subEvent == "SPELL_AURA_REMOVED" then
+        if BQ.SPELLS.MIND_CONTROL[spellId] then
+            BQ:HandleMindControlRemoved(destName)
         end
     end
     if subEvent == "UNIT_DIED" then

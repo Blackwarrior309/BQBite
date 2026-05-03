@@ -73,7 +73,9 @@ Wenn `BQBissDB.started == true` und `BQBissDB.auto == true`:
 - `SPELL_AURA_APPLIED` mit Bloodthirst-IDs setzt `destName` auf `VAMPIRE` und sagt genau diesen Biss an.
 - Vampiric-Bite-Events setzen Quelle und Ziel auf `VAMPIRE` und starten für beide jeweils 60s-Timer neu.
 - Vampiric-Bite-Events werden gegen die geplante Zuordnung geprüft; falsche Ziele werden angesagt.
-- `SPELL_AURA_APPLIED` mit Mind-Control-ID setzt `destName` auf `MC`; `UNIT_DIED` setzt bekannte Spieler auf `DEAD`. Beides entfernt laufende Timer.
+- `SPELL_AURA_APPLIED` mit Mind-Control-ID setzt `destName` auf `MC`; `SPELL_AURA_REMOVED` stellt den vorherigen Status wieder her.
+- `UNIT_DIED` setzt bekannte Spieler auf `DEAD`; `UNIT_HEALTH` stellt bei Wiederbelebung den vorherigen Status wieder her.
+- Beim Wechsel auf `DEAD` oder `MC` merkt sich BQBiss vorher `PRIO` oder `VAMPIRE` und den laufenden Timer-Ablaufzeitpunkt.
 - Bloodthirst hat einen 2s-Anti-Spam pro Spieler.
 
 Spell-IDs:
@@ -91,6 +93,7 @@ Spell-IDs:
 - `/bq reset` Status auf `PRIO` zurücksetzen
 - `/bq next` nächste Ansage
 - `/bq wrong NAME` falschen Biss als Vampir markieren
+- `/bq restore NAME` gespeicherten Status nach `DEAD` oder `MC` wiederherstellen
 - `/bq import` Raidmitglieder importieren
 - `/bq role NAME dd|heal|tank|unknown` Rolle setzen
 - `/bq markers on|off` Raidmarker schalten
@@ -110,7 +113,5 @@ Spell-IDs:
 
 ## Nächste sinnvolle Schritte
 
-- Wiederbelebung/Status-Rückkehr implementieren: Raid-Roster oder Unit-Events, Status `DEAD`/`MC` zurück zu `PRIO` bzw. `VAMPIRE`.
-- Optional: Raid-Spieler automatisch importieren.
+- Im Raid testen: `DEAD` -> Wiederbelebung und `MC` -> Aura-Ende muessen zu `PRIO` bzw. `VAMPIRE` zurueckkehren.
 - Optional: Klassenfarben und bessere Scrollliste.
-
