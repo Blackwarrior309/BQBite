@@ -689,24 +689,38 @@ function BQ:GetDebugTimerText()
 end
 
 function BQ:CompleteDebugBite(name)
-    name = self:CleanPlayerName(name)
-    if not name then
-        name = self:GetNextDebugBiter()
-    end
-    if not name then
-        self:DebugLog("Biss geklappt: kein Beißer gesetzt.")
+    local assignments = self:CalculateAssignments()
+    if not assignments or #assignments == 0 then
+        self:DebugLog("Biss geklappt: keine ausstehenden Bisse.")
         return false
     end
-    local assignment = self:GetAssignmentForBiter(name)
-    if not assignment or not assignment.target then
-        self:DebugLog("Biss geklappt: kein Ziel für " .. name .. ".")
+
+    local lastTarget
+    local messages = {}
+    for _, assignment in ipairs(assignments) do
+        if assignment.target then
+            table.insert(messages, assignment.biter .. " -> " .. assignment.target)
+            lastTarget = assignment.target
+        end
+    end
+    if #messages == 0 then
+        self:DebugLog("Biss geklappt: keine Ziele für ausstehende Bisse.")
         return false
     end
-    self:SetStatus(assignment.target, self.STATUS_VAMPIRE)
-    self:DebugLog("Biss geklappt: " .. assignment.biter .. " -> " .. assignment.target .. ".")
-    self:SetDebugBiteTimer(assignment.biter, 60)
-    self:SetDebugBiteTimer(assignment.target, 60)
-    return assignment.target
+
+    for _, assignment in ipairs(assignments) do
+        if assignment.target then
+            self:SetStatus(assignment.target, self.STATUS_VAMPIRE)
+        end
+    end
+    for _, assignment in ipairs(assignments) do
+        if assignment.target then
+            self:SetDebugBiteTimer(assignment.biter, 60)
+            self:SetDebugBiteTimer(assignment.target, 60)
+        end
+    end
+    self:DebugLog("Alle ausstehenden Bisse geklappt: " .. table.concat(messages, " / ") .. ".")
+    return lastTarget
 end
 
 function BQ:HandleVampiricBite(sourceName, destName)

@@ -55,7 +55,7 @@ BQBiss ist ein WoW-3.3.5-Addon für Blood-Queen Lana'thel. Es verwaltet eine Pri
   - Hauptliste zeigt laufende simulierte und echte Biss-Timer direkt in der Timer-Spalte.
   - `Nächster fällig` übernimmt den nächsten Timer-Spieler ins Debug-Eingabefeld.
   - `Timer weg` löscht den Timer des ausgewählten/eingetragenen Spielers.
-  - `Biss geklappt` markiert das aktuelle Ziel als `VAMPIRE`, startet für Beißer und Ziel jeweils einen neuen 60s-Timer und trägt das Ziel ins Debug-Eingabefeld ein.
+  - `Alle Bisse OK` markiert alle aktuell zugewiesenen Ziele als `VAMPIRE`, startet für alle beteiligten Beißer und neuen Vampire jeweils einen neuen 60s-Timer und trägt das letzte Ziel ins Debug-Eingabefeld ein.
 
 ## Auto-Erkennung
 

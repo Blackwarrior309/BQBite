@@ -706,7 +706,7 @@ function UI:CreateDebug()
         end
     end)
 
-    local done = CreateButton(frame, "Biss geklappt", 118, 24)
+    local done = CreateButton(frame, "Alle Bisse OK", 118, 24)
     done:SetPoint("TOPLEFT", frame, "TOPLEFT", 28, -142)
     done:SetScript("OnClick", function()
         local nextBiter = BQ:CompleteDebugBite(GetDebugName())
