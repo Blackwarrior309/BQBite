@@ -45,6 +45,7 @@ BQ.SPELLS = {
 local defaults = {
     players = {},
     announceChannel = "LOCAL",
+    localOnly = true,
     markersEnabled = true,
     markerTargets = {},
     started = false,
@@ -94,6 +95,9 @@ function BQ:InitDB()
     BQBissDB = BQBissDB or {}
     CopyDefaults(BQBissDB, defaults)
     self.db = BQBissDB
+    if self.db.localOnly == nil then
+        self.db.localOnly = true
+    end
     for _, player in ipairs(self.db.players) do
         self:EnsurePlayerDefaults(player)
     end

@@ -35,10 +35,13 @@ Danach im Spiel `/reload` ausführen oder den Client neu starten.
 - `/bq import` importiert aktuelle Raidmitglieder
 - `/bq role NAME dd|heal|tank|unknown` setzt eine Rolle
 - `/bq markers on|off` schaltet Raidmarker
+- `/bq local on|off` sperrt oder erlaubt Chatansagen
 - `/bq channel local|raid|party|say` setzt den Ansagekanal
 - `/bq debug` öffnet das Debugfenster
 
 ## Hinweise
+
+Standardmäßig ist der lokale Testmodus aktiv. Dadurch werden alle Ansagen nur dir lokal im Chatfenster angezeigt und nicht in Raid, Party oder Say gesendet. Für echte Chatansagen zuerst `/bq local off` verwenden und dann den gewünschten Kanal setzen.
 
 Für Raidmarker werden im Raid passende Rechte benötigt. Wenn keine Rechte vorhanden sind, läuft das Addon weiter, setzt aber keine Marker.
 

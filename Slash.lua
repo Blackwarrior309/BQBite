@@ -10,6 +10,7 @@ local function Help()
     BQ:Print("/bq import - Raidmitglieder importieren")
     BQ:Print("/bq role NAME dd|heal|tank|unknown - Rolle setzen")
     BQ:Print("/bq markers on|off - Raidmarker schalten")
+    BQ:Print("/bq local on|off - Chatansagen sperren oder erlauben")
     BQ:Print("/bq channel local|raid|party|say - Ansagekanal setzen")
     BQ:Print("/bq minimap - Minimap-Icon anzeigen")
     BQ:Print("/bq debug - Debug-Fenster öffnen")
@@ -59,6 +60,17 @@ SlashCmdList["BQBISS"] = function(msg)
         else
             BQ:Print("Raidmarker: " .. (BQ.db and BQ.db.markersEnabled and "AN" or "AUS"))
         end
+    elseif command == "local" then
+        local value = string.lower(rest or "")
+        if value == "on" or value == "an" then
+            BQ:SetLocalOnly(true)
+        elseif value == "off" or value == "aus" then
+            BQ:SetLocalOnly(false)
+        else
+            BQ:Print("Syntax: /bq local on|off")
+            return
+        end
+        BQ:Print("Testmodus: " .. (BQ:IsLocalOnly() and "nur lokal" or "Chatkanäle erlaubt"))
     elseif command == "channel" then
         if rest and rest ~= "" then
             BQ:SetAnnounceChannel(rest)

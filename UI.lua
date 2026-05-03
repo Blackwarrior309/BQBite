@@ -452,12 +452,20 @@ function UI:Create()
     end)
     self.autoButton = auto
 
+    local localOnly = CreateButton(frame, "Nur Lokal", 82, 24)
+    localOnly:SetPoint("LEFT", auto, "RIGHT", 8, 0)
+    localOnly:SetScript("OnClick", function()
+        BQ:SetLocalOnly(not BQ:IsLocalOnly())
+        BQ:Print("Testmodus: " .. (BQ:IsLocalOnly() and "nur lokal" or "Chatkanäle erlaubt"))
+    end)
+    self.localOnlyButton = localOnly
+
     local next = CreateButton(frame, "Nächste Ansage", 126, 24)
-    next:SetPoint("LEFT", auto, "RIGHT", 8, 0)
+    next:SetPoint("LEFT", localOnly, "RIGHT", 8, 0)
     next:SetScript("OnClick", function() BQ:AnnounceNext() end)
 
     local import = CreateButton(frame, "Raid Import", 90, 24)
-    import:SetPoint("LEFT", next, "RIGHT", 8, 0)
+    import:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 506, 132)
     import:SetScript("OnClick", function() BQ:ImportRaidMembers() end)
     self.importButton = import
 
@@ -550,6 +558,9 @@ function UI:Refresh()
     self.vampires:SetText("Aktive Vampire: " .. (#vampireNames > 0 and table.concat(vampireNames, ", ") or "-"))
     self.summary:SetText(BQ:GetNextMessage())
     self.autoButton:SetText(BQ.db.auto and "Auto AN" or "Auto AUS")
+    if self.localOnlyButton then
+        self.localOnlyButton:SetText(BQ:IsLocalOnly() and "Nur Lokal" or "Chat AN")
+    end
     if self.markersButton then
         self.markersButton:SetText(BQ.db.markersEnabled and "Marker AN" or "Marker AUS")
     end

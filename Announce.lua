@@ -24,8 +24,25 @@ function BQ:SetAnnounceChannel(channel)
     self:Refresh()
 end
 
+function BQ:SetLocalOnly(enabled)
+    self:InitDB()
+    self.db.localOnly = enabled and true or false
+    if self.db.localOnly then
+        self.db.announceChannel = "LOCAL"
+    end
+    self:Refresh()
+end
+
+function BQ:IsLocalOnly()
+    self:InitDB()
+    return self.db.localOnly ~= false
+end
+
 function BQ:GetAnnounceChannel()
     self:InitDB()
+    if self:IsLocalOnly() then
+        return "LOCAL"
+    end
     return self.db.announceChannel or "LOCAL"
 end
 
@@ -42,11 +59,11 @@ end
 
 function BQ:Announce(message)
     local channel = self:GetAnnounceChannel()
-    if channel ~= "LOCAL" and self:CanSendToChannel(channel) then
+    if not self:IsLocalOnly() and channel ~= "LOCAL" and self:CanSendToChannel(channel) then
         SendChatMessage(SanitizeChatMessage(message), channel)
     else
         self:Print(message)
-        if channel ~= "LOCAL" then
+        if not self:IsLocalOnly() and channel ~= "LOCAL" then
             self:Print("Kanal " .. channel .. " nicht verfügbar, lokal ausgegeben.")
         end
     end
